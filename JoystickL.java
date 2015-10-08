@@ -42,7 +42,7 @@ public class JoystickL extends OpMode {
     @Override
     public void loop(){
         float xVal = (gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x)); //x*|x|
-        float yVal = (gamepad1.right_stick_x*Math.abs(gamepad1.left_stick_y)); //y*|y|
+        float yVal = (gamepad1.right_stick_y*Math.abs(gamepad1.left_stick_y)); //y*|y|
         float motorL = yVal + xVal;
         float motorR = yVal - xVal;
 
