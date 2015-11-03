@@ -20,7 +20,7 @@ import java.util.ArrayList;
 /**
  * Created by ethan on 10/13/15.
  */
-public class PathMaker extends OpMode {
+public class PathMaker extends DoubleJoystickBoogaloo {
 
     //Data structure for a single point on the robot's path, divided into x and y components (of joystick)
     public class path {
@@ -51,16 +51,16 @@ public class PathMaker extends OpMode {
 
     public PathMaker(){} //We need a constructor for some reason even though everything goes in init() usually
 
+    @Override
     public void init(){
         robotPath = new ArrayList<path>();
-        stickL = new JoystickL();
     }
 
     @Override
     public void loop(){
         if(gamepad1.b == true){
             makePath();
-            stickL.driveFromJoystickL();
+            runFromDJB();
         }
     }
 
@@ -68,9 +68,9 @@ public class PathMaker extends OpMode {
     public void stop(){
         /*Convert robotPath into a string, then  save it to a file
         Formatting:
-            X1,Y1
-            X2,Y2
-            X3,Y3
+            X1 Y1
+            X2 Y2
+            X3 Y3
             etc.*/
         String filename = "robotPath";
         String toSave = "";
@@ -78,7 +78,7 @@ public class PathMaker extends OpMode {
         for(int i = 0; i < robotPath.size(); i++){
             path currentPath = robotPath.get(i);
             toSave += currentPath.getX();
-            toSave += ',';
+            toSave += ' ';
             toSave += currentPath.getY();
             toSave += '\n';
         }
