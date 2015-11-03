@@ -14,8 +14,23 @@ public class DoubleJoystickBoogaloo extends OpMode {
     DcMotor motorLF;
     DcMotor motorLB;
 
+    public void runFromDJB(){
+        float motorL;
+        float motorR;
+
+        motorL = ScalePower(gamepad1.left_stick_y);
+        motorR = ScalePower(gamepad1.right_stick_y);
+
+        motorLF.setPower(motorL);
+        motorLB.setPower(motorL);
+        motorRF.setPower(motorR);
+        motorRB.setPower(motorR);
+
+        writeToTelemetry(motorL, motorR); //comment out when done testing
+    }
+
     public float ScalePower(float power){
-        Range.clip(power, -1, 1);
+        Range.clip(power, -1.00, 1.00);
         final float conversionFactor = 1f;
         return power*conversionFactor;
     }
@@ -44,20 +59,7 @@ public class DoubleJoystickBoogaloo extends OpMode {
     motorRF.setPower(ScalePower(Range.clip(gamepad1.right_stick_y)));
     * */
     @Override
-    public void loop(){
-        float motorL;
-        float motorR;
-
-        motorL = ScalePower(gamepad1.left_stick_y);
-        motorR = ScalePower(gamepad1.right_stick_y);
-
-        motorLF.setPower(motorL);
-        motorLB.setPower(motorL);
-        motorRF.setPower(motorR);
-        motorRB.setPower(motorR);
-
-        writeToTelemetry(motorL, motorR); //comment out when done testing
-    }
+    public void loop(){ runFromDJB(); }
 
     @Override
     public void stop(){
