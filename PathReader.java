@@ -15,18 +15,20 @@ import java.util.ArrayList;
 public class PathReader extends OpMode {
 
     float xVal = 0, yVal = 0;
-    int posInSteps = 0;
 
     private ArrayList<PathMaker.path> robotPath;
 
+    //constructor does nothing
     public PathReader(){}
-
+    
+    //grabs contents of RobotPath file then puts them into an array
     void getRobotPath(){
-        String contents = "";
-        //get dem contents of file
-        Scanner sc = new Scanner(contents);
+        Scanner sc = new Scanner(new File("robotPath"));
         while(sc.hasNext()){
-            robotPath.add(sc.nextLine());
+            String temp = sc.nextLine();
+            String vals[] = temp.split("\\s");
+            path newPath = new path(vals[0],vals[1]);
+            robotPath.add(newPath);
         }
     }
 
@@ -38,7 +40,8 @@ public class PathReader extends OpMode {
     @Override
     public void loop(){
         if(!robotPath.isEmpty()){
-            final PathMaker.path pathNode = robotPath.get((robotPath.size()));
+            PathMaker.path pathNode = new path(0,0);
+            PathMaker.path pathNode = robotPath.get((robotPath.size()));//don't think this will work
             xVal = pathNode.getX();
             yVal = pathNode.getY();
             //set motor values
