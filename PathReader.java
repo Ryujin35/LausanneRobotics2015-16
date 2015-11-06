@@ -3,6 +3,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import android.content.Context;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+//import motors and shit
 
 import java.io.*;
 import java.util.Scanner;
@@ -22,16 +23,16 @@ public class PathReader extends OpMode {
 
     void getRobotPath(){
         String contents = "";
-        //get dem contents
+        //get dem contents of file
         Scanner sc = new Scanner(contents);
         while(sc.hasNext()){
-            sc.nextLine();
+            robotPath.add(sc.nextLine());
         }
     }
 
 
     public void init(){
-
+        getRobotPath();
     }
 
     @Override
@@ -40,6 +41,7 @@ public class PathReader extends OpMode {
             final PathMaker.path pathNode = robotPath.get((robotPath.size()));
             xVal = pathNode.getX();
             yVal = pathNode.getY();
+            //set motor values
         }
     }
 
