@@ -9,11 +9,6 @@ import com.qualcomm.robotcore.util.Range;
  * Created by ethan on 11/2/15.
  */
 public class TheFinalJoystick extends OpMode{
-    //shitty servoState enum
-    final static short STOP = 0;//literally does nothing
-    final static short CLOCKWISE = 1;
-    final static short COUNTERCLOCKWISE = 2;
-
     //motors for driving
     DcMotor motorRF;
     DcMotor motorRB;
@@ -26,27 +21,15 @@ public class TheFinalJoystick extends OpMode{
     DcMotor retractArm;
     DcMotor raiseArm;
 
-    //servos for generic shit
+    //servos for other shit
     Servo boxRotateServo;
     Servo putterServo;
     Servo trapdoorServo;
     Servo sweeperServo;
 
     //color sensor servo doesn't need to be here
-
-    short sweeperState = 0;
-
-    private void driveServoFromState(Servo servo, short state){
-        if(state == CLOCKWISE){
-            //servo.setPosition(Range.clip(servo.getPosition() + 0.00001, 0, 1));
-            servo.setPosition(0);
-        }else if(state == COUNTERCLOCKWISE){
-//          //servo.setPosition(Range.clip(servo.getPosition() - 0.00001, 0, 1));
-            servo.setPosition(1);
-        }else if(state == STOP){
-            servo.setPosition(0.5);
-        }
-    }
+    
+    static double sweeperVal = 0.5;
 
     public TheFinalJoystick(){}
 
@@ -85,15 +68,17 @@ public class TheFinalJoystick extends OpMode{
         gamepad 2 bumpers (both)
         gamepad 2 x/y/a/b
         */
-        double powerR;
-        double powerL;
-
+        
+        //raise/lower arm using dpad up/down
         if(gamepad2.dpad_up){
-            //extend
+            raiseArm.setPower(1.0);
         }else if(gamepad2.dpad_down){
-            //retract
+            raiseArm.setPower(-1.0);
+        }else{
+            raiseArm.setPower(0.0);
         }
-
+        
+        //rotate box using dpad L/R
         if(gamepad2.dpad_left){
             boxRotateServo.setPosition(0);
         }else if(gamepad2.dpad_right){
@@ -101,40 +86,57 @@ public class TheFinalJoystick extends OpMode{
         }else{
             boxRotateServo.setPosition(0.5);
         }
+        
+        //extend/retract arm using joystick
+        double joystickPwr = Range.clip(gamepad2.left_stick);
+        if(gamepad2.left_stick_y > 0){
+            extendArm1.setPower(1);
+            extendArm2.setPower(1);
+            retractArm.setPower(0.5);
+        }else if(gamepad2.left_stick_y < 0){
+            extendArm1.setPower(0.5);
+            extendArm2.setPower(0.5);
+            retractArm.setPower(1);
+        }else{
+            extendArm1.setPower(0.5);
+            extendArm2.setPower(0.5);
+            retractArm.setPower(0.5);
+        }
 
-        powerL = Range.clip(gamepad1.left_stick_y, -1.00, 1.00);
-        powerR = Range.clip(gamepad1.right_stick_y, -1.00, 1.00);
-
+        //drive robot around using gamepad 1 joysticks
+        double powerL = Range.clip(gamepad1.left_stick_y, -1.00, 1.00);
+        double powerR = Range.clip(gamepad1.right_stick_y, -1.00, 1.00);
         motorLB.setPower(powerL);
         motorLF.setPower(powerL);
         motorRB.setPower(powerR);
         motorRF.setPower(powerR);
-
-        //set state of boxLowerServo
+        
+        //control trap door with y and a
         if(gamepad2.y){
-            //do some shit
+            trapdoorServo.setPosition(1);
         }else if(gamepad2.a){
-            //opposite
+            trapdoorServo.setPosition(0);
         }else{
-            //stahp
+            trapdoorServo.setPosition(0.5);
         }
 
-        //boxRotateServo
+        //control putter with x and b
         if(gamepad2.x){
-            //do some shit
+            putterServo.setPosition(0);
         }else if(gamepad2.b){
-            //opposite
+            putterServo.setPosition(1);
         }else{
-            //stahp
+            putterServo.setPosition(0.5);
         }
 
-        //sweeperServo
-        if(gamepad1.x) sweeperState = STOP;
-        else if(gamepad1.right_bumper || gamepad2.right_bumper) sweeperState = CLOCKWISE;
-        else if(gamepad1.left_bumper || gamepad2.left_bumper) sweeperState = COUNTERCLOCKWISE;
-
-        driveServoFromState(sweeperServo, sweeperState);
-
+        //control state of sweeper using bumpers
+        //0 = CW, 1 = CCW, 2 = stop
+        if(gamepad1.x) sweeperVal = 0.5;
+        else if(gamepad1.right_bumper || gamepad2.right_bumper) sweeperVal = 1;
+        else if(gamepad1.left_bumper || gamepad2.left_bumper) sweeperVal = 0;
+        sweeperServo.setPosition(sweeperVal);
+        
+        //add stuff to telemetry
         telemetry.addData("Sweeper Position", sweeperServo.getPosition());
         telemetry.addData("Rotate Servo Position", boxRotateServo.getPosition());
     }
