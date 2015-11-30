@@ -1,7 +1,7 @@
 /* How to use:
-    1. Press and hold B
-    2. Drive the robot around using the left joystick until you get wherever you need to go
-    3. Release B so you don't have a bunch of stuff that does nothing
+    1. Press and hold A/B/X/Y on gamepad 2
+    2. Drive the robot around using gamepad 1
+    3. Release A/B/X/Y to stop recording at any time
     4. Stop program to save path
  */
 
@@ -22,29 +22,32 @@ import java.util.ArrayList;
  */
 public class PathMaker extends DoubleJoystickBoogaloo {
 
-    //Data structure for a single point on the robot's path, divided into x and y components (of joystick)
-    public class path {
-        private float x;
-        private float y;
+    //Data structure for a single point on the robot's path
+    private class path {
+        private float L;
+        private float R;
 
-        public path(float _x, float _y){
-            x = _x;
-            y = _y;
+        public path(float _L, float _R){
+            L = _L;
+            R = _R;
         }
 
-        public float getX(){
-            return x;
+        public float getL(){
+            return L;
         }
-        public float getY(){
-            return y;
+        public float getR(){
+            return R;
         }
     }
 
     private ArrayList<path> robotPath; //array of joystick values
-    private JoystickL stickL; //lets you drive
+    private ArrayList<path> robotPathA;
+    private ArrayList<path> robotPathB;
+    private ArrayList<path> robotPathX;
+    private ArrayList<path> robotPathY;
 
     public void makePath(){
-        path newPathPoint = new path(gamepad1.left_stick_x, gamepad1.left_stick_y);
+        path newPathPoint = new path(gamepad1.left_stick_y, -gamepad1.right_stick_y);
         robotPath.add(newPathPoint);
     }
 
@@ -58,9 +61,15 @@ public class PathMaker extends DoubleJoystickBoogaloo {
 
     @Override
     public void loop(){
-        if(gamepad1.b == true){
-            makePath();
-            runFromDJB();
+        runFromDJB();
+        if(gamepad2.a){
+            //save to file a
+        }else if(gamepad2.b){
+            //save to file b
+        }else if(gamepad2.x){
+            //save to file x
+        }else if(gamepad2.y){
+            //save to file y
         }
     }
 
@@ -68,25 +77,25 @@ public class PathMaker extends DoubleJoystickBoogaloo {
     public void stop(){
         /*Convert robotPath into a string, then  save it to a file
         Formatting:
-            X1 Y1
-            X2 Y2
-            X3 Y3
+            L1 R1
+            L2 R2
+            L3 R3
             etc.*/
         String filename = "robotPath";
         String toSave = "";
 
         for(int i = 0; i < robotPath.size(); i++){
             path currentPath = robotPath.get(i);
-            toSave += currentPath.getX();
+            toSave += currentPath.getL();
             toSave += ' ';
-            toSave += currentPath.getY();
+            toSave += currentPath.getR();
             toSave += '\n';
         }
         Context ctx = null;//null because there was a warning
 
+        //todo: make this work for A/B/X/Y
         try{
             FileOutputStream saveFile = ctx.openFileOutput(filename, Context.MODE_PRIVATE);
-            //file is private; i don't want this but it's hard to change for some reason
 
             saveFile.write(toSave.getBytes());
             saveFile.close();
@@ -96,3 +105,4 @@ public class PathMaker extends DoubleJoystickBoogaloo {
         }
     } //We also need this even if it does nothing
 }
+
