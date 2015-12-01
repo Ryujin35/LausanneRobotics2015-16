@@ -1,3 +1,5 @@
+//Press A, B, X, or Y to run a file. It will queue more shit if you press more things.
+
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 
@@ -17,7 +19,7 @@ public class PathReader extends OpMode {
 
     DcMotor motorLF, motorLB, motorRF, motorRB;
 
-    protected class path {
+    private class path {
         private float L;
         private float R;
 
@@ -34,21 +36,14 @@ public class PathReader extends OpMode {
         }
     }
 
-    float motorL = 0, motorR = 0;
-
-    protected ArrayList<path> robotPath = null;
-    protected ArrayList<path> currentPath = null;
-    protected int cpProgress = 0; //what line in the current path the program is on
-    protected boolean cpIsDone = true;
-
     //constructor does nothing
     public PathReader(){}
 
     //grabs contents of RobotPath file then puts them into an array
-    void getRobotPath(){
+    void getRobotPath(String filename, ArrayList<path> pathList){
         Scanner sc = null;
         try {
-            sc = new Scanner(new File("robotPath"));
+            sc = new Scanner(new File(filename));
         }catch(Exception e){
             System.out.println(e);
         }
@@ -56,80 +51,63 @@ public class PathReader extends OpMode {
             String temp = sc.nextLine();
             String vals[] = temp.split("\\s");
             path newPath = new path(Integer.parseInt(vals[0]),Integer.parseInt(vals[1]));
-            robotPath.add(newPath);
+            pathList.add(newPath);
         }
     }
-    ArrayList<path> getRobotPathFromFile(String s){
-        ArrayList<path> ptemp = new ArrayList<path>();
-        Scanner sc = null;
-        try {
-            sc = new Scanner(s); //dunno how this works, this is just a guess
-        }catch(Exception e){
-            System.out.println(e);
-        }
-        while(sc.hasNext()){
-            String temp = sc.nextLine();
-            String vals[] = temp.split("\\s");
-            path newPath = new path(Integer.parseInt(vals[0]),Integer.parseInt(vals[1]));
-            ptemp.add(newPath);
-        }
-        return ptemp;
+    
+    void driveFromPath(ArrayList<path> pathList){
+        path pathNode = pathList.get(0);//get item at top of list
+        float motorL = pathNode.getL();
+        float motorR = pathNode.getR();
+
+        //set motor values
+        motorLF.setPower(motorL);
+        motorLB.setPower(motorL);
+        motorRF.setPower(motorR);
+        motorRB.setPower(motorR);
+        
+        pathList.remove(0);//the item at the top of the list is now the next set of joystick inputs
     }
-    public void runPath(ArrayList<path> pList) { //function to set up path to be run by the loop function
-        currentPath = pList;
-        cpProgress = 0;
-        cpIsDone = false;
-    }
+    
 
     public void init(){
         motorLF = hardwareMap.dcMotor.get("motor_LF");
         motorLB = hardwareMap.dcMotor.get("motor_LB");
         motorRF = hardwareMap.dcMotor.get("motor_RF");
         motorRB = hardwareMap.dcMotor.get("motor_RB");
-
-        getRobotPath();
+        
+        //todo: get arm servos and set position of thing
     }
-
+    
+    
+    private ArrayList<path> pathA, pathB, pathX, pathY;
+    
     @Override
     public void loop(){
-        /*if(!robotPath.isEmpty()){
-            path pathNode = robotPath.get(0);//don't think this will work
-            motorL = pathNode.getL();
-            motorR = pathNode.getR();
-
-            //set motor values
-            motorLF.setPower(motorL);
-            motorLB.setPower(motorL);
-            motorRF.setPower(motorR);
-            motorRB.setPower(motorR);
-        }*/
-
-        //rewriting this for you ethan for compatability with JSAutonomous, might not work so care
-        if((!currentPath.isEmpty()) || cpIsDone) {
-            if(robotPath.size() == cpProgress - 1) {//idk if it should be -1, i think it should just if theres an error yeah
-                //cpIsDone = true; //will be done in child class
-                currentPath = null;
-                cpProgress = 0;
-            } else {
-                path pathNode = robotPath.get(cpProgress);//don't think this will work
-                motorL = pathNode.getL();
-                motorR = pathNode.getR();
-
-                motorLF.setPower(motorL);
-                motorLB.setPower(motorL);
-                motorRF.setPower(motorR);
-                motorRB.setPower(motorR);
-                cpProgress++; //hopefully this loops around the same time as path reader, otherwise it might not be on a node for the correct time
-            }
+        if(gamepad2.a){
+            getRobotPath("pathA", pathA);
+        }else if(gamepad2.b){
+            getRobotPath("pathB", pathB);
+        }else if(gamepad2.x){
+            getRobotPath("pathX", pathX);
+        }else if(gamepad2.y){
+            getRobotPath("pathY", pathY);
         }
-
+        
+        if(!pathA.isEmpty()){
+            driveFromPath(pathA);
+        }else if(!pathB.isEmpty()){
+            driveFromPath(pathB);
+        }else if(!pathX.isEmpty()){
+            driveFromPath(pathX);
+        }else if(!pathY.isEmpty()){
+            driveFromPath(pathY);
+        }else{
+            telemetry.addData("The dark deed you requested has been done", "");
+        }
     }
-    public void travelMeters(float j) {
-        //we need to hardcode this
-    }
-    public void rotateDegrees(int j) {
-        //we need to hardcode this
-    }
+    
+    
     @Override
     public void stop(){
 
