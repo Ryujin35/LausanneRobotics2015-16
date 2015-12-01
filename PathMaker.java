@@ -41,51 +41,24 @@ public class PathMaker extends DoubleJoystickBoogaloo {
     }
 
     private ArrayList<path> robotPath; //array of joystick values
-    private ArrayList<path> robotPathA;
-    private ArrayList<path> robotPathB;
-    private ArrayList<path> robotPathX;
-    private ArrayList<path> robotPathY;
+    private ArrayList<path> pathA, pathB, pathX, pathY;
 
-    public void makePath(){
+    private void makePath(ArrayList<path> pathList){
         path newPathPoint = new path(gamepad1.left_stick_y, -gamepad1.right_stick_y);
-        robotPath.add(newPathPoint);
+        pathList.add(newPathPoint);
     }
-
-
-    public PathMaker(){} //We need a constructor for some reason even though everything goes in init() usually
-
-    @Override
-    public void init(){
-        robotPath = new ArrayList<path>();
-    }
-
-    @Override
-    public void loop(){
-        runFromDJB();
-        if(gamepad2.a){
-            //save to file a
-        }else if(gamepad2.b){
-            //save to file b
-        }else if(gamepad2.x){
-            //save to file x
-        }else if(gamepad2.y){
-            //save to file y
-        }
-    }
-
-    @Override //not even sure what these do but they're everywhere
-    public void stop(){
+    
+    private void savePathToFile(String filename, ArrayList<path> pathList){
         /*Convert robotPath into a string, then  save it to a file
         Formatting:
             L1 R1
             L2 R2
             L3 R3
             etc.*/
-        String filename = "robotPath";
         String toSave = "";
 
-        for(int i = 0; i < robotPath.size(); i++){
-            path currentPath = robotPath.get(i);
+        for(int i = 0; i < pathList.size(); i++){
+            path currentPath = pathList.get(i);
             toSave += currentPath.getL();
             toSave += ' ';
             toSave += currentPath.getR();
@@ -103,6 +76,42 @@ public class PathMaker extends DoubleJoystickBoogaloo {
         }catch (Exception e){//gotta catch 'em all
             e.printStackTrace();
         }
-    } //We also need this even if it does nothing
+    }
+
+
+    public PathMaker(){} //We need a constructor for some reason even though everything goes in init() usually
+
+
+    @Override
+    public void init(){
+        robotPath = new ArrayList<path>();
+    }
+
+
+    @Override
+    public void loop(){
+        runFromDJB();
+        if(gamepad2.a){
+            makePath(pathA);
+            
+        }else if(gamepad2.b){
+            makePath(pathB);
+            
+        }else if(gamepad2.x){
+            makePath(pathX);
+            
+        }else if(gamepad2.y){
+            makePath(pathY);
+            
+        }
+    }
+
+    @Override //not even sure what these do but they're everywhere
+    public void stop(){
+        savePathToFile("pathA", pathA);
+        savePathToFile("pathB", pathB);
+        savePathToFile("pathX", pathX);
+        savePathToFile("pathY", pathY);
+    }
 }
 
