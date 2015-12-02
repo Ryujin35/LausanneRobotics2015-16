@@ -21,7 +21,7 @@ public class TheFinalJoystick extends OpMode{
     DcMotor retractArm;
     DcMotor raiseArm;
 
-    //servos for other shit
+    //servos
     Servo boxRotateServo;
     Servo putterServo;
     Servo trapdoorServo;
@@ -87,20 +87,22 @@ public class TheFinalJoystick extends OpMode{
             boxRotateServo.setPosition(0.5);
         }
         
+        final double extRetPwr = 0.5;
+        
         //extend/retract arm using joystick
         double joystickPwr = Range.clip(gamepad2.left_stick);
         if(gamepad2.left_stick_y > 0){
-            extendArm1.setPower(1);
-            extendArm2.setPower(1);
-            retractArm.setPower(0.5);
+            extendArm1.setPower(extRetPwr);
+            extendArm2.setPower(extRetPwr);
+            retractArm.setPower(0);
         }else if(gamepad2.left_stick_y < 0){
-            extendArm1.setPower(0.5);
-            extendArm2.setPower(0.5);
-            retractArm.setPower(1);
+            extendArm1.setPower(0);
+            extendArm2.setPower(0);
+            retractArm.setPower(extRetPwr);
         }else{
-            extendArm1.setPower(0.5);
-            extendArm2.setPower(0.5);
-            retractArm.setPower(0.5);
+            extendArm1.setPower(0);
+            extendArm2.setPower(0);
+            retractArm.setPower(0);
         }
 
         //drive robot around using gamepad 1 joysticks
@@ -130,15 +132,10 @@ public class TheFinalJoystick extends OpMode{
         }
 
         //control state of sweeper using bumpers
-        //0 = CW, 1 = CCW, 2 = stop
         if(gamepad1.x) sweeperVal = 0.5;
         else if(gamepad1.right_bumper || gamepad2.right_bumper) sweeperVal = 1;
         else if(gamepad1.left_bumper || gamepad2.left_bumper) sweeperVal = 0;
         sweeperServo.setPosition(sweeperVal);
-        
-        //add stuff to telemetry
-        telemetry.addData("Sweeper Position", sweeperServo.getPosition());
-        telemetry.addData("Rotate Servo Position", boxRotateServo.getPosition());
     }
 
     @Override
